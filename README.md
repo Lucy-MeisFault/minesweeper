@@ -1,190 +1,99 @@
-# Global Minesweeper — Backend API
+# Global Minesweeper
 
-## Setup
-
-```bash
-npm install
-npm start          # production
-npm run dev        # auto-reload on change
-```
-
-Set `JWT_SECRET` and `PORT` as env vars. Defaults to port **3000** with a dev secret.
-
-> **Note:** data is in-memory. Restarting the server wipes everything. Swap `src/store.js` for a real DB (e.g. SQLite / Postgres) when deploying.
+Kooperativní online verze Minesweeperů, kde hráči společně řeší jeden herní plán v reálném čase. Hra je tahová, každý hráč má omezený počet tahů, poté přichází na řadu další.
 
 ---
 
-## Auth
+## Účel aplikace
 
-All protected routes require:
-```
-Authorization: Bearer <token>
-```
-Tokens are JWTs, valid 30 days.
+Hráči si zakládají místnosti, zvou přátele pomocí kódu místnosti a společně hrají Minesweeper. Aktivita se zaznamenává na žebříčku. Za nasbírané tahy se odemykají kosmetiky (vlajky).
 
 ---
 
-## Endpoints
+## Struktura projektu
 
-### Accounts
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/accounts/register` | — | Create account |
-| POST | `/accounts/login` | — | Login, get token |
-| GET | `/accounts/me` | ✓ | Your profile |
-| GET | `/accounts/:id` | — | Public profile |
-| GET | `/accounts/me/cosmetics` | ✓ | Your cosmetics + unlock status |
-| POST | `/accounts/me/cosmetics/:cosmeticId/unlock` | ✓ | Unlock a cosmetic |
-
-**Register / Login body:**
-```json
-{ "username": "alice", "password": "pass123" }
 ```
+frontend/
+  index.html          - struktura stránky
+  style.css           - vzhled, design
+  script.js           - logika frontendu
+  manifest.json       - konfigurace PWA
+  service-worker.js   - PWA
 
-**Response:**
-```json
-{
-  "token": "eyJ...",
-  "account": {
-    "id": "uuid",
-    "username": "alice",
-    "totalMoves": 0,
-    "wins": 0,
-    "unlockedCosmetics": ["flag_red"],
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
-}
+backend/
+  index.js            — vstupní bod Express serveru
+  config.js           — obtížnosti, kosmetika, JWT
+  src/
+    db.js             — inicializace JSON databáze
+    store.js          — čtení a zápis dat
+    game.js           — generování hrací desky, flood fill, kontrola výhry
+    middleware/
+      auth.js         — ověření JWT tokenu
+    routes/
+      accounts.js     — registrace, přihlášení, profil, kosmetika
+      rooms.js        — správa místností a tahů
+      leaderboard.js  — žebříček hráčů
 ```
 
 ---
 
-### Rooms
+## Použité API endpointy
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/rooms` | ✓ | Create room |
-| GET | `/rooms/:id` | ✓ | Get room state |
-| POST | `/rooms/:id/join` | ✓ | Join a room |
-| POST | `/rooms/:id/start` | ✓ | Start game (host only) |
-| POST | `/rooms/:id/move` | ✓ | Play a move |
-| POST | `/rooms/:id/skip` | ✓ | Skip remaining moves |
-| DELETE | `/rooms/:id/leave` | ✓ | Leave room |
-
-**Create room body:**
-```json
-{
-  "difficulty": "medium",   // easy | medium | hard
-  "movesPerTurn": 2,        // optional override
-  "maxPlayers": 4           // optional, default 4
-}
-```
-
-**Difficulty presets:**
-
-| Difficulty | Grid | Mines | Moves/turn |
-|------------|------|-------|------------|
-| easy | 9×9 | 10 | 3 |
-| medium | 16×16 | 40 | 2 |
-| hard | 16×30 | 99 | 1 |
-
-**Room object:**
-```json
-{
-  "id": "A3F9B2C1",
-  "hostId": "uuid",
-  "difficulty": "medium",
-  "settings": { "rows": 16, "cols": 16, "mines": 40, "movesPerTurn": 2, "maxPlayers": 4 },
-  "status": "waiting",         // waiting | playing | won | lost
-  "players": [
-    { "id": "uuid", "username": "alice", "moves": 0 }
-  ],
-  "currentTurnPlayerId": "uuid",
-  "movesLeftThisTurn": 2,
-  "board": null,               // null before start; array of rows after
-  "startedAt": null,
-  "endedAt": null,
-  "createdAt": "..."
-}
-```
-
-**Board cell (after start):**
-```json
-{
-  "revealed": false,
-  "flagged": false,
-  "adjacentMines": null,   // number when revealed, null when hidden
-  "mine": null             // true/false when revealed or game over, null when hidden
-}
-```
-
-**Move body:**
-```json
-{ "action": "reveal", "row": 4, "col": 7 }
-{ "action": "flag",   "row": 4, "col": 7 }
-```
-
-**Move response:**
-```json
-{
-  "event": {
-    "type": "reveal",
-    "cells": [{ "row": 4, "col": 7 }, ...]
-  },
-  "room": { /* updated room object */ }
-}
-```
-
-Event types: `reveal`, `flag`, `hit_mine`
+| Metoda | Endpoint | Popis |
+|--------|----------|-------|
+| POST | `/accounts/register` | Registrace |
+| POST | `/accounts/login` | Přihlášení |
+| GET | `/accounts/me` | Vlastní profil |
+| GET | `/accounts/me/cosmetics` | Seznam kosmetiky |
+| POST | `/accounts/me/cosmetics/:id/unlock` | Odemknutí kosmetiky |
+| POST | `/rooms` | Vytvoření místnosti |
+| GET | `/rooms/:id` | Stav místnosti |
+| POST | `/rooms/:id/join` | Vstup do místnosti |
+| POST | `/rooms/:id/start` | Spuštění hry |
+| POST | `/rooms/:id/move` | Odehrání tahu |
+| POST | `/rooms/:id/skip` | Přeskočení tahu |
+| DELETE | `/rooms/:id/leave` | Opuštění místnosti |
+| GET | `/leaderboard` | Žebříček hráčů |
 
 ---
 
-### Leaderboard
+## Princip fungování
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/leaderboard` | — | Top players |
+**Autentizace** - po registraci nebo přihlášení server vrátí JWT token, který se uloží do localStorage. Token se přikládá ke každému chráněnému požadavku v hlavičce Authorization.
 
-**Query params:**
-- `sort=moves` (default) or `sort=wins`
-- `limit=20` (max 100)
+**Místnosti** - hráč vytvoří místnost a sdílí její ID. Ostatní hráči se připojí pomocí tohoto kódu. Hostitel spustí hru, načež server vygeneruje herní desku.
 
-**Response:**
-```json
-{
-  "sort": "totalMoves",
-  "entries": [
-    { "id": "uuid", "username": "alice", "totalMoves": 142, "wins": 3 }
-  ]
-}
-```
+**Multiplayer** - frontend každé 3 sekundy dotazuje server na aktuální stav místnosti polling. Změny provedené ostatními hráči se tak zobrazí všem.
+
+**Tahy** - hráč může odkrýt nebo označit políčko. Po vyčerpání povolených tahů přejde řada na dalšího hráče.
+
+**Kosmetika** - za nasbírané tahy se automaticky odemykají různé varianty vlajky. Hráč si může vybrat aktivní skin v profilu.
+
 
 ---
 
-## Cosmetics
-
-Unlocked automatically when `totalMoves` reaches the threshold:
-
-| id | Name | Required moves |
-|----|------|---------------|
-| `flag_red` | Red Flag | 0 (default) |
-| `flag_skull` | Skull Flag | 50 |
-| `flag_star` | Star Flag | 200 |
-
----
-
-## Project structure
+## Use-case diagram
 
 ```
-index.js              — Express entry point
-config.js             — difficulty presets, cosmetics, JWT secret
-src/
-  store.js            — in-memory data store
-  game.js             — board generation, flood-fill, win check
-  middleware/
-    auth.js           — JWT verification middleware
-  routes/
-    accounts.js       — register, login, profile, cosmetics
-    rooms.js          — room lifecycle + moves
-    leaderboard.js    — top players
+┌─────────────────────────────────────────────┐
+│                  Hráč                       │
+│                                             │
+│  [Registrace / Přihlášení]                  │
+│           │                                 │
+│           ▼                                 │
+│  [Vytvoření místnosti] ──► [Nastavení]      │
+│  [Vstup do místnosti]                       │
+│           │                                 │
+│           ▼                                 │
+│  [Čekání na hráče] ──► [Spuštění hry]       │
+│           │                                 │
+│           ▼                                 │
+│  [Odkrytí políčka]                          │
+│  [Označení vlajkou]  ◄──► [Tahová rotace]   │
+│  [Přeskočení tahu]                          │
+│           │                                 │
+│           ▼                                 │
+│  [Výhra / Prohra] ──► [Žebříček]            │
+│                    ──► [Odemknutí kosmetiky]│
+└─────────────────────────────────────────────┘
 ```
