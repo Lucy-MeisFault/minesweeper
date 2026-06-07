@@ -1,4 +1,4 @@
-const API = window.ENV_API_URL || `http://localhost:3000`; //ill have to replace this when hosting
+const API = "https://minesweeper-j1d6.onrender.com";
 
 let token = localStorage.getItem("token") || ""; //if we already have an account here we do that if not we just dont 
 let account = null;
