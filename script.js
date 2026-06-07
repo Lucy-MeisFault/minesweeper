@@ -371,8 +371,9 @@ function showGameOver(status) {
     } else { //just shows the user if they won or not when the game comes to an end
         gameOverTitle.textContent = "Game over.";
         gameOverMsg.textContent = "Someone hit a mine.";
-        gameOverOverlay.style.display = "flex";
+
     }
+            gameOverOverlay.style.display = "flex";
 }
 
 async function closeGameOver() {
