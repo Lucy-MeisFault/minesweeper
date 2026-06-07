@@ -38,6 +38,7 @@ const loginBtn = document.getElementById("loginBtn");
 const board = document.getElementById("board");
 
 const skinList = ["🚩", "🏴‍☠️", "⭐"];
+const tileSize = window.innerWidth < 601 ? 24 : 32; // smaller tiles for phone
 
 loginBtn.addEventListener("click", login);
 registerBtn.addEventListener("click", register);
@@ -422,19 +423,22 @@ function showBoard() {
     board.innerHTML = "";
     let rows = currentRoom.board.length;
     let cols = currentRoom.board[0].length;
-    board.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
+
+board.style.gridTemplateColumns = `repeat(${cols}, ${tileSize}px)`;
     let gameOver = currentRoom.status === "won" || currentRoom.status === "lost";
     for (let row = 0; row < rows; row++) { 
         for (let col = 0; col < cols; col++) {
             const cell = currentRoom.board[row][col];
             const tile = document.createElement("div"); //just renders the board giving it looks based on if it has been revealed or not
             tile.classList.add("tile");
+            tile.style.width = `${tileSize}px`;
+            tile.style.height = `${tileSize}px`;
             if (cell.revealed) {
                 tile.classList.add("revealed");
                 if (cell.mine === true) {
                     tile.textContent = "💣";
                 } else if (cell.adjacentMines > 0) {
-                tile.textContent = cell.adjacentMines;
+                    tile.textContent = cell.adjacentMines;
                 }
             }
             if (cell.flagged) {
@@ -442,7 +446,7 @@ function showBoard() {
             }
             if (!gameOver) {
                 tile.addEventListener("click", () => revealTile(row, col));
-             tile.addEventListener("contextmenu", e => {
+                tile.addEventListener("contextmenu", e => {
                     e.preventDefault();
                     flagTile(row, col);
                 });
