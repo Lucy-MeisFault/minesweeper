@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Minesweeper</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-colour" content="#ffffff">
+<link rel="icon" href="/icon-512.png" type="image">
+</head>
+<body>
+<header>
+    <h1>Global Minesweeper</h1>
+</header>
+<main>
+
+    <section id="auth">
+        <h2>Account</h2>
+        <input id="username" placeholder="Username">
+        <input id="password" type="password" placeholder="Password">
+        <div class="button-row">
+            <button id="loginBtn">Login</button>
+            <button id="registerBtn">Register</button>
+        </div>
+    </section>
+
+    <section id="menu">
+        <div class="card">
+            <h2>Profile</h2>
+            <p id="playerName">Not logged in</p>
+            <p id="playerStats">turns played: 0</p>
+            <div id="skinSelector"></div>
+            <button id="logoutBtn">Logout</button>
+        </div>
+        <div class="card">
+            <h2>Create Room</h2>
+            <label>Difficulty</label>
+            <select id="difficulty">
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+            </select>
+            <label>Turns per player</label>
+            <input type="number" id="movesPerTurn" value="3" min="1" max="5">
+            <button id="createRoomBtn">Create Room</button>
+        </div>
+        <div class="card">
+            <h2>Join Room</h2>
+            <input id="roomCode" placeholder="Room ID">
+            <button id="joinRoomBtn">Join</button>
+        </div>
+    </section>
+
+    <section id="room">
+        <div class="card">
+            <h2>Room Lobby</h2>
+            <p>Room ID: <span id="roomId">-</span></p>
+            <ul id="playerList"></ul>
+            <div class="button-row">
+            <button id="startGameBtn">Start Game</button>
+            <button id="leaveRoomBtn">Leave Room</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="game">
+        <div class="top-bar">
+           <div>Current Player: <span id="currentPlayer">-</span></div>
+            <div>Turns Left: <span id="turnsLeft">0</span></div>
+            <div class="button-row">
+            <button id="skipTurnBtn">Skip Turn</button>
+            <button id="leaveGameBtn">Leave Game</button>
+           </div>
+        </div>
+        <div id="board"></div>
+    </section>
+
+    <div id="gameOverOverlay" style="display:none">
+        <div id="gameOverBox">
+            <h2 id="gameOverTitle"></h2>
+            <p id="gameOverMsg"></p>
+            <button id="gameOverBtn">Back to Menu</button>
+        </div>
+    </div>
+
+    <section id="leaderboard">
+        <div class="card">
+            <h2>Leaderboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Total turns</th>
+                        <th>Wins</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html> :D
