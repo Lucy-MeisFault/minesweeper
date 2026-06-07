@@ -59,15 +59,15 @@ backend/
 
 ## Princip fungování
 
-**Autentizace** - po registraci nebo přihlášení server vrátí JWT token, který se uloží do localStorage. Token se přikládá ke každému chráněnému požadavku v hlavičce Authorization.
+Autentizace - po registraci nebo přihlášení server vrátí JWT token, který se uloží do localStorage. Token se přikládá ke každému chráněnému požadavku v hlavičce Authorization.
 
-**Místnosti** - hráč vytvoří místnost a sdílí její ID. Ostatní hráči se připojí pomocí tohoto kódu. Hostitel spustí hru, načež server vygeneruje herní desku.
+Místnosti - hráč vytvoří místnost a sdílí její ID. Ostatní hráči se připojí pomocí tohoto kódu. Hostitel spustí hru, načež server vygeneruje herní desku.
 
-**Multiplayer** - frontend každé 3 sekundy dotazuje server na aktuální stav místnosti polling. Změny provedené ostatními hráči se tak zobrazí všem.
+Multiplayer - frontend každé 3 sekundy dotazuje server na aktuální stav místnosti polling. Změny provedené ostatními hráči se tak zobrazí všem.
 
-**Tahy** - hráč může odkrýt nebo označit políčko. Po vyčerpání povolených tahů přejde řada na dalšího hráče.
+Tahy - hráč může odkrýt nebo označit políčko. Po vyčerpání povolených tahů přejde řada na dalšího hráče.
 
-**Kosmetika** - za nasbírané tahy se automaticky odemykají různé varianty vlajky. Hráč si může vybrat aktivní skin v profilu.
+Kosmetika - za nasbírané tahy se automaticky odemykají různé varianty vlajky. Hráč si může vybrat aktivní skin v profilu.
 
 
 ---
@@ -97,3 +97,17 @@ backend/
 │                    ──► [Odemknutí kosmetiky]│
 └─────────────────────────────────────────────┘
 ```
+
+---
+
+## Známé problémy, chyby
+
+PWA nemá žádnou opravdovou funkci, protože to je online hra. Ani nevím jestli funguje.
+
+Hráč může začít hru i o samotě. toto mi ale pomáhalo v debugování, a tak to tam zatím nechám pro jednodušší demonstraci funkce.
+
+Hráč může umíšťovat a odstraňovat vlajky opakovaně, a rychle tak získat množství tahů. Ze stejných důvodů zde vadu zanechám.
+
+Při výhře se neukáže overlay informujíc o výhře. Netuším proč, a je mi blbé dělat třetí commit ve snaze zpravit tuto chybu.
+
+Web není hostován na školním hostingu. Já vím.
